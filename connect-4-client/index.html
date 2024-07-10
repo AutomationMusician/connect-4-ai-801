@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connect 4</title>
+    <style>
+        #toolbar {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        button {
+            width: 100px;
+            margin: 10px 20px;
+        }
+        table {
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse: collapse;
+        }
+        tbody td {
+            border: 1px solid black;
+            width: 70px;
+            height: 70px;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <td id="toolbar">
+                    <button id="playRed" onclick="placeRed()">Play Red First</button>
+                    <button id="changeAI" onclick="changeAI()">AI vs. AI</button>
+                    <button onclick="clearBoard()">Clear Board</button>
+                    <button id="undo" onclick="undo()">Undo</button>
+                </td>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+    <h1 id="gameState"></h1>
+</body>
+<script src="setupTable.js"></script>
+</html>
