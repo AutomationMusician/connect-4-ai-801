@@ -8,12 +8,6 @@ const playerColorToChar = {
     "white": ' '
 };
 
-const playerCharToColor = {
-    'O': "blue",
-    'X': "red",
-    ' ': "white"
-};
-
 let blueFirst = true;
 let finished = false;
 let moveInProgress = false;
