@@ -1,5 +1,4 @@
 //------------------------------------------- imports -----------------------------------------------
-import internal from 'stream';
 import { GameBoard, numWide, numHigh, emptyBoardXOFormat } from '../common/game.mjs';
 
 //---------------------------------------- global vars ----------------------------------------------
