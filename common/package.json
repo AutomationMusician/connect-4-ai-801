@@ -1,0 +1,13 @@
+{
+  "name": "common",
+  "version": "1.0.0",
+  "description": "Common Module for Connect 4 AI Agent for Penn State AI 801",
+  "main": "game.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "exports": {
+    "./game": "./game.mjs"
+  },
+  "license": "ISC"
+}
