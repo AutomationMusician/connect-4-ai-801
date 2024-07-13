@@ -9,7 +9,7 @@
             margin-right: auto;
         }
         button {
-            width: 100px;
+            width: 150px;
             margin: 10px 20px;
         }
         table {
@@ -32,18 +32,14 @@
         <thead>
             <tr>
                 <td id="toolbar">
-                    <button id="playRed" onclick="placeRed()">Play Red First</button>
-                    <button id="changeAI" onclick="changeAI()">AI vs. AI</button>
-                    <button onclick="clearBoard()">Clear Board</button>
-                    <button id="undo" onclick="undo()">Undo</button>
+                    <button id="changeFirstPlayer">Play Red First</button>
+                    <button id="clearBoard">Reset Game Board</button>
                 </td>
             </tr>
         </thead>
         <tbody id="tbody"></tbody>
     </table>
-    <h1 id="gameState"></h1>
+    <h1 id="gameStatus"></h1>
 </body>
-<!-- <script src="../common/game.js" type="module"></script> -->
-<!-- <script src="setupTable.js" type="module"></script> -->
-<script src="script.js"  type="module"></script>
+<script src="script.js" type="module"></script>
 </html>

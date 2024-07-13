@@ -3,7 +3,9 @@ Connect 4 AI Agent for Penn State AI 801
 
 ## Quick start
 1. Install NodeJS version 20+ on your computer.
-1. In your preferred shell, `cd` to the `server` folder and run `npm start`.
+1. In your preferred shell, `cd` to the `server` folder.
+1. run `npm install` to install all necessary packages.
+1. run `npm start` to start the application.
 1. In your browser, navigate to `http://localhost:3000`
 
 ## Design Documentation

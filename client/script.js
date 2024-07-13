@@ -1,200 +1,40 @@
+//------------------------------------------- imports -----------------------------------------------
+import internal from 'stream';
 import { GameBoard, numWide, numHigh, emptyBoardXOFormat } from '../common/game.mjs';
 
-let finished = false;
-let twoAI = false;
-let moves = [];
+//---------------------------------------- global vars ----------------------------------------------
+const playerColorToChar = {
+    "blue": 'O',
+    "red": 'X',
+    "white": ' '
+};
 
+const playerCharToColor = {
+    'O': "blue",
+    'X': "red",
+    ' ': "white"
+};
+
+let blueFirst = true;
+let finished = false;
+let moveInProgress = false;
+
+//-------------------------------- statically generated html content -------------------------------
+
+/**
+ * Get DOM Element ID of td item for box in column col and row row
+ * @param {integer} col 
+ * @param {integer} row 
+ * @returns {string} DOM Element ID of td item for box in column col and row row
+ */
 function boxId(col, row) {
     return "col" + col + "row" + row;
 }
 
-function getBoard() {
-    const board = [];
-    for (let col = 0; col < numWide; col++) {
-        const column = [];
-        for (let row = 0; row < numHigh; row++) {
-            const elem = document.getElementById(boxId(col, row));
-            column.push(elem.style.background);
-        }
-        board.push(column);
-    }
-    return board;
-}
-
-function winner(set) {
-    const c = set[0];
-    if (c == "white") return "none";
-    let same = true;
-    for (let i = 1; same && i < set.length; i++) {
-        if (c != set[i]) same = false;
-    }
-    return same ? c : "none";
-}
-
-function createEmptySet() {
-    return ["white", "white", "white", "white"];
-}
-
-function state(board) {
-    let set;
-    for (let col = 0; col < numWide; col++) {
-        set = createEmptySet();
-        for (let row = 0; row < numHigh; row++) {
-            set[row % 4] = board[col][row];
-            const winningPlayer = winner(set);
-            if (winningPlayer != "none") {
-                return winningPlayer;
-            }
-        }
-    }
-    for (let row = 0; row < numHigh; row++) {
-        set = createEmptySet();
-        for (let col = 0; col < numWide; col++) {
-            set[col % 4] = board[col][row];
-            const winningPlayer = winner(set);
-            if (winningPlayer != "none") return winningPlayer;
-        }
-    }
-    for (let row = 0; row < numHigh - 3; row++) {
-        for (let col = 0; col < numWide - 3; col++) {
-            set = createEmptySet();
-            for (let i = 0; i < set.length; i++) {
-                set[i] = board[col + i][row + i];
-                const winningPlayer = winner(set);
-                if (winningPlayer != "none") return winningPlayer;
-            }
-        }
-    }
-    for (let row = 3; row < numHigh; row++) {
-        for (let col = 0; col < numWide - 3; col++) {
-            set = createEmptySet();
-            for (let i = 0; i < set.length; i++) {
-                set[i] = board[col + i][row - i];
-                const winningPlayer = winner(set);
-                if (winningPlayer != "none") return winningPlayer;
-            }
-        }
-    }
-    let full = true;
-    for (let col = 0; full && col < numWide; col++) {
-        for (let row = 0; full && row < numHigh; row++) {
-            if (board[col][row] == "white") full = false;
-        }
-    }
-    if (full) return "tie";
-    else return "incomplete";
-}
-
-function showState(state) {
-    const elem = document.getElementById("gameState");
-    finished = true;
-    switch (state) {
-        case "blue":
-            elem.textContent = "Blue Wins!";
-            elem.style.color = "blue";
-            break;
-        case "red":
-            elem.textContent = "Red Wins!";
-            elem.style.color = "red";
-            break;
-        case "tie":
-            elem.textContent = "It's a tie!";
-            elem.style.color = "purple";
-            break;
-        default:
-            finished = false;
-    }
-}
-
-function changeAI() {
-    twoAI = !twoAI;
-    document.getElementById("changeAI").textContent = twoAI ? "Play Against AI" : "AI vs. AI";
-    if (twoAI) {
-        while (!finished) {
-            if (!finished) placeBlueAI();
-            if (!finished) placeRed();
-        }
-    }
-}
-
-function undo() {
-    if (moves.length > 1) {
-        for (let i = 0; i < 2; i++) {
-            const col = moves.pop();
-            for (let row = numHigh - 1; row >= 0; row--) {
-                const dataElem = document.getElementById(boxId(col, row));
-                if (dataElem.style.background != "white") {
-                    dataElem.style.background = "white";
-                    break;
-                }
-            }
-        }
-    }
-    document.getElementById("undo").disabled = (moves.length <= 1);
-    document.getElementById("playRed").disabled = (moves.length > 0);
-    document.getElementById("gameState").textContent = "";
-    finished = false;
-}
-
-function place(board, col, blue) {
-    for (let row = 0; row < numHigh; row++) {
-        const elem = document.getElementById(boxId(col, row));
-        if (elem.style.background == "white") {
-            elem.style.background = blue ? "blue" : "red";
-            break;
-        }
-    }
-    board = getBoard();
-    const currentState = state(board);
-    showState(currentState);
-    moves.push(col);
-}
-
-function placeBlueAI() {
-    let board = getBoard();
-    const blueCol = minimaxBlue(board);
-    place(board, blueCol, true);
-}
-
-function placeRed() {
-    let board = getBoard();
-    asyncMinimaxRed(board).then((col) => {
-        place(board, col, false);
-    });
-}
-
-function clearBoard() {
-    for (let row = 0; row < numHigh; row++) {
-        for (let col = 0; col < numWide; col++) {
-            const elem = document.getElementById(boxId(col, row));
-            elem.style.background = "white";
-        }
-    }
-    document.getElementById("playRed").disabled = false;
-    document.getElementById("undo").disabled = true;
-    document.getElementById("gameState").textContent = "";
-    finished = false;
-    moves = [];
-}
-
-function click(col) {
-    let board = getBoard();
-    if (!columnFull(board, col)) {
-        if (!finished) place(board, col, true);
-        if (!finished) placeRed();
-    }
-}
-
-// socket.on('move', (data) => {
-//     const { move, player } = data;
-//     if (player === 'blue') {
-//         placeBlueAI();
-//     } else {
-//         placeRed();
-//     }
-// });
-
-
+/**
+ * Dynamically setup Connect 4 HTML table
+ * @returns {void}
+ */
 function setupTable() {
     const toolbarElem = document.getElementById("toolbar");
     toolbarElem.colSpan = numWide;
@@ -215,7 +55,162 @@ function setupTable() {
     while (rows.length > 0) {
         tbody.append(rows.pop());
     }
-    document.getElementById("undo").disabled = true;
 }
 
 setupTable();
+
+/**
+ * Reset board
+ * @returns {void}
+ */
+async function clearBoard() {
+    for (let row = 0; row < numHigh; row++) {
+        for (let col = 0; col < numWide; col++) {
+            const elem = document.getElementById(boxId(col, row));
+            elem.style.background = "white";
+        }
+    }
+    document.getElementById("gameStatus").textContent = "";
+    finished = false;
+
+    // if red is playing first, play it now.
+    if (!blueFirst) {
+        moveInProgress = true;
+        const aiMoveCol = await getAiMove();
+        place(aiMoveCol, "red");
+        moveInProgress = false;
+    }
+}
+// bind element to this function
+document.getElementById("clearBoard").onclick = clearBoard;
+
+const changeFirstPlayerButton = document.getElementById('changeFirstPlayer');
+/**
+ * Change which player is starting first and restart the game.
+ * @returns {void}
+ */
+function changeFirstPlayer() {
+    if (blueFirst) {
+        changeFirstPlayerButton.textContent = "Play Blue First";
+    }
+    else {
+        changeFirstPlayerButton.textContent = "Play Red First";
+    }
+    blueFirst = !blueFirst;
+    clearBoard();
+}
+changeFirstPlayerButton.onclick = changeFirstPlayer;
+
+//------------------------------------------ dynamic actions -----------------------------------------
+
+/**
+ * Generate a GameBoard object from the DOM table
+ * @returns {GameBoard} GameBoard object representing the current game state
+ */
+function getGameBoard() {
+    const gameBoard = new GameBoard(emptyBoardXOFormat);
+    for (let col = 0; col < numWide; col++) {
+        for (let row = 0; row < numHigh; row++) {
+            const elem = document.getElementById(boxId(col, row));
+            gameBoard.board[col][row] = playerColorToChar[elem.style.background];
+        }
+    }
+    return gameBoard;
+}
+
+/**
+ * Update HTML if the game is finished to clearly show a winner or a tie. If the game is unfinished, do nothing.
+ * @param {character} status status of the current game
+ * @returns {void}
+ */
+function showStatus(status) {
+    const elem = document.getElementById("gameStatus");
+    finished = true;
+    switch (status) {
+        case 'O':
+            elem.textContent = "Blue Wins!";
+            elem.style.color = "blue";
+            break;
+        case 'X':
+            elem.textContent = "Red Wins!";
+            elem.style.color = "red";
+            break;
+        case 'T':
+            elem.textContent = "It's a tie!";
+            elem.style.color = "purple";
+            break;
+        default:
+            finished = false;
+    }
+}
+
+/**
+ * Update the HTML to show that a new piece was played and update the status if the game is finished.
+ * @param {integer} col
+ * @param {string} playerColor color of player: "blue" or "red"
+ * @returns {void}
+ */
+function place(col, playerColor) {
+    let piecePlaced = false;
+    for (let row = 0; row < numHigh; row++) {
+        const elem = document.getElementById(boxId(col, row));
+        if (elem.style.background === "white") {
+            elem.style.background = playerColor;
+            piecePlaced = true;
+            break;
+        }
+    }
+    if (!piecePlaced) {
+        console.error(`${playerColor} piece could not be placed because column index ${col} is full`);
+        return;
+    }
+    const gameBoard = getGameBoard();
+    const currentStatus = gameBoard.status();
+    showStatus(currentStatus);
+}
+
+/**
+ * Runs actions to run when a column in the table is clicked: Ff the game isn't finished place blue piece. Ff the game still isn't finished, get AI response move and place their piece.
+ * @param {integer} col column clicked
+ * @returns {void}
+ */
+async function click(col) {
+    // prevent moves from happening before the next move can happen
+    if (moveInProgress) return;
+    moveInProgress = true;
+
+    if (finished) {
+        moveInProgress = false;
+        return;
+    }
+
+    // place blue piece
+    place(col, "blue");
+
+    // place red piece
+    if (finished) {
+        moveInProgress = false;
+        return;
+    }
+    const aiMoveCol = await getAiMove();
+    place(aiMoveCol, "red");
+    moveInProgress = false;
+}
+
+//------------------------------------------ API handlers -----------------------------------------
+
+/**
+ * Get AI Move by querying the server with the current board state 
+ * and getting a column back where the AI chose to move.
+ * @returns {Promise<integer>} column where the AI chose to play
+ */
+async function getAiMove() {
+    const gameBoard = getGameBoard();
+    const response = await fetch(`/api/next-move/${gameBoard.toXOFormat()}`);
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+    const responseText = await response.text();
+    return Number(responseText);
+}
+

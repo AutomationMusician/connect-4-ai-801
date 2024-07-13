@@ -11,6 +11,7 @@ export class GameBoard {
      * @param {string} xoFormat 
      */
     constructor(xoFormat) {
+        /** @type {character[][]} */
         this.board = [...Array(numWide)].map(e => Array(numHigh).fill(' '));
         let col = 0;
         let row = 0;
@@ -64,11 +65,12 @@ export class GameBoard {
         }
     }
 
+    // TODO: test this more thoroughly. I've noted that lots of wins aren't counted as wins.
     /**
-     * Check the state of the game
-     * @returns {Nullable<character>} 'X' for X win, 'O' for O win, 'T' for tie, and 'U' if the game is unfinished
+     * Check the status of the game
+     * @returns {character} 'X' for X win, 'O' for O win, 'T' for tie, and 'U' if the game is unfinished
      */
-    state() {
+    status() {
         function checkLine(a, b, c, d) {
             // Check if all four pieces are the same and not empty
             return (a !== ' ' && a === b && a === c && a === d);
@@ -142,7 +144,3 @@ export class GameBoard {
         return output.join('');
     }
 }
-
-// module.exports = { GameBoard }
-
-// export { GameBoard }
