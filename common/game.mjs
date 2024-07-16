@@ -114,7 +114,7 @@ export class GameBoard {
     
         // Check if there are still available moves
         for (let col = 0; col < numWide; col++) {
-            if (this.board[0][col] === ' ') {
+            if (!this.columnFull(col)) {
                 // Game is unfinished
                 return 'U';
             }

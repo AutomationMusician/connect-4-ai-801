@@ -102,10 +102,10 @@ changeFirstPlayerButton.onclick = changeFirstPlayer;
  */
 function getGameBoard() {
     const gameBoard = new GameBoard(emptyBoardXOFormat);
-    for (let col = 0; col < numWide; col++) {
-        for (let row = 0; row < numHigh; row++) {
+    for (let row = 0; row < numHigh; row++) {
+        for (let col = 0; col < numWide; col++) {
             const elem = document.getElementById(boxId(col, row));
-            gameBoard.board[col][row] = playerColorToChar[elem.style.background];
+            gameBoard.board[row][col] = playerColorToChar[elem.style.background];
         }
     }
     return gameBoard;
