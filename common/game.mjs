@@ -77,10 +77,10 @@ export class GameBoard {
         }
     
         // Check for horizontal wins
-        for (let row = 0; row < numHigh; row++) {
-            for (let col = 0; col < numWide - 3; col++) {
-                if (checkLine(this.board[row][col], this.board[row][col + 1], this.board[row][col + 2], this.board[row][col + 3])) {
-                    return this.board[row][col];
+        for (let col = 0; col < numWide - 3; col++) {
+            for (let row = 0; row < numHigh; row++) {
+                if (checkLine(this.board[col][row], this.board[col + 1][row], this.board[col + 2][row], this.board[col + 3][row])) {
+                    return this.board[col][row];
                 }
             }
         }
@@ -88,26 +88,26 @@ export class GameBoard {
         // Check for vertical wins
         for (let col = 0; col < numWide; col++) {
             for (let row = 0; row < numHigh - 3; row++) {
-                if (checkLine(this.board[row][col], this.board[row + 1][col], this.board[row + 2][col], this.board[row + 3][col])) {
-                    return this.board[row][col];
+                if (checkLine(this.board[col][row], this.board[col][row + 1], this.board[col][row + 2], this.board[col][row + 3])) {
+                    return this.board[col][row];
                 }
             }
         }
     
         // Check for diagonal (bottom left to top right) wins
-        for (let row = 0; row < numHigh - 3; row++) {
-            for (let col = 0; col < numWide - 3; col++) {
-                if (checkLine(this.board[row][col], this.board[row + 1][col + 1], this.board[row + 2][col + 2], this.board[row + 3][col + 3])) {
-                    return this.board[row][col];
+        for (let col = 0; col < numWide - 3; col++) {
+            for (let row = 0; row < numHigh - 3; row++) {
+                if (checkLine(this.board[col][row], this.board[col + 1][row + 1], this.board[col + 2][row + 2], this.board[col + 3][row + 3])) {
+                    return this.board[col][row];
                 }
             }
         }
     
         // Check for diagonal (top left to bottom right) wins
-        for (let row = 3; row < numHigh; row++) {
-            for (let col = 0; col < numWide - 3; col++) {
-                if (checkLine(this.board[row][col], this.board[row - 1][col + 1], this.board[row - 2][col + 2], this.board[row - 3][col + 3])) {
-                    return this.board[row][col];
+        for (let col = 0; col < numWide - 3; col++) {
+            for (let row = 3; row < numHigh; row++) {
+                if (checkLine(this.board[col][row], this.board[col + 1][row - 1], this.board[col + 2][row - 2], this.board[col + 3][row - 3])) {
+                    return this.board[col][row];
                 }
             }
         }
@@ -115,17 +115,14 @@ export class GameBoard {
         // Check for tie
         let full = true;
         for (let col = 0; col < numWide; col++) {
-            if (this.board[0][col] === ' ') {
-                full = false;
-                break;
+            if (!columnFull(col)) {
+                // Game is unfinished
+                return 'U';
             }
         }
-        if (full) {
-            return 'T';
-        }
-    
-        // Game is unfinished
-        return 'U';
+
+        // board is full, its a tie!
+        return 'T';
     }
 
     /**
