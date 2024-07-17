@@ -12,7 +12,7 @@ export class GameBoard {
      */
     constructor(xoFormat) {
         /** @type {character[][]} */
-        this.board = [...Array(numWide)].map(e => Array(numHigh).fill(' '));
+        this.board = [...Array(numHigh)].map(e => Array(numWide).fill(' '));
         let col = 0;
         let row = 0;
         for (let charIndex = 0; charIndex < xoFormat.length; charIndex++) {
@@ -22,7 +22,7 @@ export class GameBoard {
                 row = 0;
             }
             else {
-                this.board[col][row] = char;
+                this.board[row][col] = char;
                 row++;
             }
         }
@@ -34,7 +34,7 @@ export class GameBoard {
      * @returns {boolean} if column is full
      */
     columnFull(col) {
-        return this.board[col][numHigh - 1] !== ' ';
+        return this.board[numHigh - 1][col] !== ' ';
     }
     
     /**
@@ -45,8 +45,8 @@ export class GameBoard {
      */
     place(col, player) {
         for (let row = 0; row < numHigh; row++) {
-            if (this.board[col][row] === ' ') {
-                this.board[col][row] = player;
+            if (this.board[row][col] === ' ') {
+                this.board[row][col] = player;
                 break;
             }
         }
@@ -58,8 +58,8 @@ export class GameBoard {
      */
     remove(col) {
         for (let row = numHigh - 1; row >= 0; row--) {
-            if (this.board[col][row] !== ' ') {
-                this.board[col][row] = ' ';
+            if (this.board[row][col] !== ' ') {
+                this.board[row][col] = ' ';
                 break;
             }
         }
@@ -86,8 +86,8 @@ export class GameBoard {
         }
     
         // Check for vertical wins
-        for (let col = 0; col < numWide; col++) {
-            for (let row = 0; row < numHigh - 3; row++) {
+        for (let row = 0; row < numHigh - 3; row++) {
+            for (let col = 0; col < numWide; col++) {
                 if (checkLine(this.board[row][col], this.board[row + 1][col], this.board[row + 2][col], this.board[row + 3][col])) {
                     return this.board[row][col];
                 }
@@ -112,20 +112,16 @@ export class GameBoard {
             }
         }
     
-        // Check for tie
-        let full = true;
+        // Check if there are still available moves
         for (let col = 0; col < numWide; col++) {
-            if (this.board[0][col] === ' ') {
-                full = false;
-                break;
+            if (!this.columnFull(col)) {
+                // Game is unfinished
+                return 'U';
             }
         }
-        if (full) {
-            return 'T';
-        }
-    
-        // Game is unfinished
-        return 'U';
+        
+        // no winners and no available moves, so it is a tie
+        return 'T';
     }
 
     /**
@@ -136,8 +132,8 @@ export class GameBoard {
         const output = [];
         for (let col = 0; col < numWide; col++) {
             for (let row = 0; row < numHigh; row++) {
-                if (this.board[col][row] === ' ') break;
-                output.push(this.board[col][row]);
+                if (this.board[row][col] === ' ') break;
+                output.push(this.board[row][col]);
             }
             output.push('.');
         }
