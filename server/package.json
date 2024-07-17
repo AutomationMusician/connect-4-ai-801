@@ -1,16 +1,21 @@
 {
-  "name": "connect-4-ai-801",
+  "name": "server",
   "version": "1.0.0",
   "description": "Connect 4 AI Agent for Penn State AI 801",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "common": "file:../common"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }
