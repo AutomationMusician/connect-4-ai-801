@@ -140,3 +140,15 @@ export class GameBoard {
         return output.join('');
     }
 }
+
+/**
+ * Flips characters in XO format so that Xs and Os are swapped
+ * @param {string} xoformat input xoformat
+ * @returns {string} output xoformat
+ */
+export function filpXO(xoformat) {
+    return xoformat
+            .replaceAll('X', '_') // replace X with temp value "_"
+            .replaceAll('O', 'X') // replace O with X
+            .replaceAll('_', 'O'); // replace temp "_" with 'O'
+}
