@@ -49,7 +49,7 @@ async function getOtherModelMove(xoformat, difficulty) {
 // const difficulties = ['easy', 'hard', 'pro'];
 const difficulties = ['easy', 'hard'];
 const players = ['X', 'O'];
-const numGamesPerScenario = 20;
+const numGamesPerScenario = 5;
 
 // asynchronously start all games
 const gameStatusPromises = [];
