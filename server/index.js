@@ -16,7 +16,14 @@ app.use('/common', express.static(path.join(__dirname, '../common')));
 
 app.get('/api/next-move/:xoformat', (req, res) => {
     const game = new GameBoard(req.params.xoformat);
-    const randomColumn = Math.floor(Math.random() * numWide); // return random number 0-6. TODO: make this use a real algorithm.
+    if (game.status() !== 'U') {
+        res.status(400).send("Game is complete. No move can be made");
+        return;
+    }
+    let randomColumn;
+    do {
+        randomColumn = Math.floor(Math.random() * numWide); // return random number 0-6.
+    } while(game.columnFull(randomColumn));
     console.log(`Received game state ${req.params.xoformat}. The AI choses to move in column index ${randomColumn}`);
     setTimeout(() => res.send(String(randomColumn)), 1000); // send column as a response. Use setTimeout to simulate it taking a full second.
 });

@@ -8,6 +8,23 @@ Connect 4 AI Agent for Penn State AI 801
 1. run `npm start` to start the application.
 1. In your browser, navigate to `http://localhost:3000`
 
+## Model Evaluation
+To evaluate the model:
+1. Run the [Quick Start](#quick-start) steps to start the node server
+1. In a new instance of your preferred shell, `cd` to the `server` folder.
+1. Run `npm run eval`, wait for the testing to complete, and view the resulting table. Example output:
+    ```
+    ┌─────────┬────────────┬────────────────┬───┬────┬───┐
+    │ (index) │ difficulty │ startingPlayer │ X │ O  │ T │
+    ├─────────┼────────────┼────────────────┼───┼────┼───┤
+    │ 0       │ 'easy'     │ 'X'            │ 4 │ 16 │ 0 │
+    │ 1       │ 'easy'     │ 'O'            │ 1 │ 19 │ 0 │
+    │ 2       │ 'hard'     │ 'X'            │ 1 │ 19 │ 0 │
+    │ 3       │ 'hard'     │ 'O'            │ 0 │ 20 │ 0 │
+    └─────────┴────────────┴────────────────┴───┴────┴───┘
+    ```
+
+
 ## Design Documentation
 
 ### XO- format
