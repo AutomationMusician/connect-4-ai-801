@@ -3,10 +3,9 @@ import { numWide, numHigh } from '../common/game.mjs';
 const EMPTY = ' ';
 const PLAYER = 'X';
 const AI = 'O';
-const DEPTH = numHigh;
 
 function isValidLocation(board, col) {
-    return board[numHigh-1][col] === EMPTY;
+    return board[numHigh - 1][col] === EMPTY;
 }
 
 function getNextOpenRow(board, col) {
@@ -60,6 +59,8 @@ function winningMove(board, piece) {
 
 function scorePosition(board, piece) {
     let score = 0;
+
+    // Score center column
     const centerArray = [];
     for (let r = 0; r < numHigh; r++) {
         centerArray.push(board[r][Math.floor(numWide / 2)]);
@@ -67,6 +68,7 @@ function scorePosition(board, piece) {
     const centerCount = centerArray.filter(cell => cell === piece).length;
     score += centerCount * 3;
 
+    // Score horizontal
     for (let r = 0; r < numHigh; r++) {
         const rowArray = board[r];
         for (let c = 0; c < numWide - 3; c++) {
@@ -75,6 +77,7 @@ function scorePosition(board, piece) {
         }
     }
 
+    // Score vertical
     for (let c = 0; c < numWide; c++) {
         const colArray = [];
         for (let r = 0; r < numHigh; r++) {
@@ -86,6 +89,7 @@ function scorePosition(board, piece) {
         }
     }
 
+    // Score positive sloped diagonal
     for (let r = 0; r < numHigh - 3; r++) {
         for (let c = 0; c < numWide - 3; c++) {
             const window = [board[r][c], board[r + 1][c + 1], board[r + 2][c + 2], board[r + 3][c + 3]];
@@ -93,6 +97,7 @@ function scorePosition(board, piece) {
         }
     }
 
+    // Score negative sloped diagonal
     for (let r = 0; r < numHigh - 3; r++) {
         for (let c = 0; c < numWide - 3; c++) {
             const window = [board[r + 3][c], board[r + 2][c + 1], board[r + 1][c + 2], board[r][c + 3]];
@@ -133,18 +138,48 @@ function getValidLocations(board) {
             validLocations.push(col);
         }
     }
-    console.log(`Valid locations: ${validLocations}`);
     return validLocations;
 }
 
-function minimax(board, depth, alpha, beta, maximizingPlayer) {
+function prioritizeColumns(board, piece) {
     const validLocations = getValidLocations(board);
-    const isTerminal = isTerminalNode(board);
+    const center = Math.floor(numWide / 2);
 
-    console.log(`Minimax called with depth: ${depth}, alpha: ${alpha}, beta: ${beta}, maximizingPlayer: ${maximizingPlayer}`);
-    console.log(`Valid locations at depth ${depth}: ${validLocations}`);
-    console.log(`Board state at depth ${depth}:`);
-    console.log(board.map(row => row.join(' ')).join('\n'));
+    // Calculate scores for each column
+    const columnScores = validLocations.map(col => {
+        const row = getNextOpenRow(board, col);
+        if (row !== null) {
+            const tempBoard = board.map(row => row.slice());
+            dropPiece(tempBoard, row, col, piece);
+            if (winningMove(tempBoard, piece)) {
+                return { col, score: 100000 }; // Immediate winning move
+            } else {
+                const oppPiece = piece === PLAYER ? AI : PLAYER;
+                if (winningMove(tempBoard, oppPiece)) {
+                    return { col, score: 50000 }; // Block opponent's winning move
+                }
+                const score = scorePosition(tempBoard, piece);
+                return { col, score };
+            }
+        }
+        return { col, score: -Infinity };
+    });
+
+    // Sort columns by score, then by proximity to center
+    columnScores.sort((a, b) => {
+        if (b.score !== a.score) {
+            return b.score - a.score;
+        } else {
+            return Math.abs(center - a.col) - Math.abs(center - b.col);
+        }
+    });
+
+    return columnScores.map(item => item.col);
+}
+
+function minimax(board, depth, alpha, beta, maximizingPlayer) {
+    const validLocations = prioritizeColumns(board, maximizingPlayer ? AI : PLAYER);
+    const isTerminal = isTerminalNode(board);
 
     if (depth === 0 || isTerminal) {
         if (isTerminal) {
@@ -160,60 +195,47 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
         }
     }
 
-    if (validLocations.length === 0) {
-        console.log("No valid locations available.");
-        return [null, 0];
-    }
+    let value;
+    let bestCol = validLocations[0];
 
     if (maximizingPlayer) {
-        let value = -Infinity;
-        let column = validLocations[Math.floor(Math.random() * validLocations.length)];
+        value = -Infinity;
         for (let col of validLocations) {
             const row = getNextOpenRow(board, col);
             if (row !== null) {
                 const bCopy = board.map(row => row.slice());
                 dropPiece(bCopy, row, col, AI);
                 const newScore = minimax(bCopy, depth - 1, alpha, beta, false)[1];
-                console.log(`Maximizing: Col: ${col}, Score: ${newScore}`);
                 if (newScore > value) {
                     value = newScore;
-                    column = col;
+                    bestCol = col;
                 }
                 alpha = Math.max(alpha, value);
                 if (alpha >= beta) {
                     break;
                 }
-            } else {
-                console.log(`Invalid move at column ${col} (row is null).`);
             }
         }
-        console.log(`Best column for maximizing player: ${column}`);
-        return [column, value];
     } else {
-        let value = Infinity;
-        let column = validLocations[Math.floor(Math.random() * validLocations.length)];
+        value = Infinity;
         for (let col of validLocations) {
             const row = getNextOpenRow(board, col);
             if (row !== null) {
                 const bCopy = board.map(row => row.slice());
                 dropPiece(bCopy, row, col, PLAYER);
                 const newScore = minimax(bCopy, depth - 1, alpha, beta, true)[1];
-                console.log(`Minimizing: Col: ${col}, Score: ${newScore}`);
                 if (newScore < value) {
                     value = newScore;
-                    column = col;
+                    bestCol = col;
                 }
                 beta = Math.min(beta, value);
                 if (alpha >= beta) {
                     break;
                 }
-            } else {
-                console.log(`Invalid move at column ${col} (row is null).`);
             }
         }
-        console.log(`Best column for minimizing player: ${column}`);
-        return [column, value];
     }
+    return [bestCol, value];
 }
 
 export { minimax, isValidLocation, getNextOpenRow, dropPiece, winningMove, isTerminalNode, getValidLocations };
