@@ -1,24 +1,50 @@
 import express from 'express';
-import * as path from 'path';
-const __dirname = import.meta.dirname; // need to define __dirname because we are using ES Modules rather than CommonJS
-import { GameBoard, numWide }  from 'common/game';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+//const session = require('express-session');
+
+import { GameBoard } from '../common/game.mjs';
+import { minimax } from './minimax.js';
+const DEPTH = 5;
+// Define __dirname using ES module syntax
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
+app.use(bodyParser.json());
+/*app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using HTTPS
+})); */
+// CORS option setup
+const corsOptions = {
+    origin: '*', 
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type,Authorization'
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight requests
+
 const port = process.env.PORT || 3000;
 
-// redirect root to '/client' route
+// Redirect root to '/client' route
 app.get('/', (req, res) => res.redirect('/client'));
 
 app.use('/client', express.static(path.join(__dirname, '../client')));
-
 app.use('/common', express.static(path.join(__dirname, '../common')));
 
 app.get('/api/next-move/:xoformat', (req, res) => {
     const game = new GameBoard(req.params.xoformat);
-    const randomColumn = Math.floor(Math.random() * numWide); // return random number 0-6. TODO: make this use a real algorithm.
-    console.log(`Received game state ${req.params.xoformat}. The AI choses to move in column index ${randomColumn}`);
-    setTimeout(() => res.send(String(randomColumn)), 1000); // send column as a response. Use setTimeout to simulate it taking a full second.
+    const board = game.board;
+    const [bestCol] = minimax(board, DEPTH, -Infinity, Infinity, true); // Adjust depth as needed
+    console.log(`Received game state ${req.params.xoformat}. The AI chooses to move in column index ${bestCol}`);
+    setTimeout(() => res.send(String(bestCol)), 1000); // Send column as a response. Use setTimeout to simulate it taking a full second.
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
