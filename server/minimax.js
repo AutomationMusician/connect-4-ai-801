@@ -4,10 +4,25 @@ const EMPTY = ' ';
 const PLAYER = 'X';
 const AI = 'O';
 
+/**
+ * Checks if the topmost cell in the specified column is empty, indicating
+ * that a move can be made in that column.
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect Four game board.
+ * @param {number} col - The column index to check for a valid move.
+ * @returns {boolean} - Returns true if a move can be made in the specified column, otherwise false.
+ */
 function isValidLocation(board, col) {
     return board[numHigh - 1][col] === EMPTY;
 }
 
+/**
+ * Finds the next available row in the specified column where a piece can be dropped.
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect Four game board.
+ * @param {number} col - The column index to check for the next open row.
+ * @returns {number|null} - Returns the row index of the next available spot or null if the column is full.
+ */
 function getNextOpenRow(board, col) {
     for (let r = numHigh - 1; r >= 0; r--) {
         if (board[r][col] === EMPTY) {
@@ -17,11 +32,27 @@ function getNextOpenRow(board, col) {
     return null;
 }
 
+/**
+ * Drops a piece in the specified location on the board.
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect Four game board.
+ * @param {number} row - The row index where the piece will be dropped.
+ * @param {number} col - The column index where the piece will be dropped.
+ * @param {string} piece - The piece to drop ('X' for player, 'O' for AI).
+ */
 function dropPiece(board, row, col, piece) {
     board[row][col] = piece;
 }
 
+/**
+ * Checks if the specified piece has a winning move on the board.
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect Four game board.
+ * @param {string} piece - The piece to check for a win ('X' for player, 'O' for AI).
+ * @returns {boolean} - Returns true if the specified piece has a winning move, otherwise false.
+ */
 function winningMove(board, piece) {
+    // Check horizontal locations for a win
     for (let c = 0; c < numWide - 3; c++) {
         for (let r = 0; r < numHigh; r++) {
             if (board[r][c] === piece && board[r][c + 1] === piece && board[r][c + 2] === piece && board[r][c + 3] === piece) {
@@ -30,6 +61,7 @@ function winningMove(board, piece) {
         }
     }
 
+    // Check vertical locations for a win
     for (let c = 0; c < numWide; c++) {
         for (let r = 0; r < numHigh - 3; r++) {
             if (board[r][c] === piece && board[r + 1][c] === piece && board[r + 2][c] === piece && board[r + 3][c] === piece) {
@@ -38,6 +70,7 @@ function winningMove(board, piece) {
         }
     }
 
+    // Check positively sloped diagonals for a win
     for (let c = 0; c < numWide - 3; c++) {
         for (let r = 0; r < numHigh - 3; r++) {
             if (board[r][c] === piece && board[r + 1][c + 1] === piece && board[r + 2][c + 2] === piece && board[r + 3][c + 3] === piece) {
@@ -46,6 +79,7 @@ function winningMove(board, piece) {
         }
     }
 
+    // Check negatively sloped diagonals for a win
     for (let c = 0; c < numWide - 3; c++) {
         for (let r = 3; r < numHigh; r++) {
             if (board[r][c] === piece && board[r - 1][c + 1] === piece && board[r - 2][c + 2] === piece && board[r - 3][c + 3] === piece) {
@@ -57,6 +91,14 @@ function winningMove(board, piece) {
     return false;
 }
 
+/**
+ * Evaluates the board position and returns a score based on the strategic advantage
+ * for the specified piece.
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect Four game board.
+ * @param {string} piece - The piece to evaluate the score for ('X' for player, 'O' for AI).
+ * @returns {number} - The evaluated score of the board position.
+ */
 function scorePosition(board, piece) {
     let score = 0;
 
@@ -108,6 +150,13 @@ function scorePosition(board, piece) {
     return score;
 }
 
+/**
+ * Evaluates a 4-cell window and assigns a score based on the number of pieces and empty cells.
+ *
+ * @param {Array<string>} window - A 4-cell array representing a segment of the board.
+ * @param {string} piece - The piece to evaluate the score for ('X' for player, 'O' for AI).
+ * @returns {number} - The score for the window based on the specified piece.
+ */
 function evaluateWindow(window, piece) {
     const oppPiece = piece === PLAYER ? AI : PLAYER;
     let score = 0;
@@ -127,10 +176,22 @@ function evaluateWindow(window, piece) {
     return score;
 }
 
+/**
+ * Determines if the game has reached a terminal state (win or draw).
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect Four game board.
+ * @returns {boolean} - Returns true if the game is in a terminal state, otherwise false.
+ */
 function isTerminalNode(board) {
     return winningMove(board, PLAYER) || winningMove(board, AI) || getValidLocations(board).length === 0;
 }
 
+/**
+ * Gets all the valid column indices where a move can be made.
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect Four game board.
+ * @returns {Array<number>} - An array of valid column indices.
+ */
 function getValidLocations(board) {
     const validLocations = [];
     for (let col = 0; col < numWide; col++) {
@@ -141,6 +202,13 @@ function getValidLocations(board) {
     return validLocations;
 }
 
+/**
+ * Prioritizes columns based on strategic evaluation for making the next move.
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect Four game board.
+ * @param {string} piece - The piece to evaluate the columns for ('X' for player, 'O' for AI).
+ * @returns {Array<number>} - An array of column indices sorted by priority.
+ */
 function prioritizeColumns(board, piece) {
     const validLocations = getValidLocations(board);
     const center = Math.floor(numWide / 2);
@@ -177,6 +245,16 @@ function prioritizeColumns(board, piece) {
     return columnScores.map(item => item.col);
 }
 
+/**
+ * Implements the minimax algorithm with alpha-beta pruning to determine the best move.
+ *
+ * @param {Array<Array<string>>} board - The current state of the Connect4 game board.
+ * @param {number} depth - The maximum depth of the search tree.
+ * @param {number} alpha - The alpha value for alpha-beta pruning.
+ * @param {number} beta - The beta value for alpha-beta pruning.
+ * @param {boolean} maximizingPlayer - A flag indicating whether the current player is the maximizing player (AI).
+ * @returns {[number|null, number]} - The best column to play and its evaluated score.
+ */
 function minimax(board, depth, alpha, beta, maximizingPlayer) {
     const validLocations = prioritizeColumns(board, maximizingPlayer ? AI : PLAYER);
     const isTerminal = isTerminalNode(board);
