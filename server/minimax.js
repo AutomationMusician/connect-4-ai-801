@@ -256,7 +256,7 @@ function prioritizeColumns(board, piece) {
  * @returns {[number|null, number]} - The best column to play and its evaluated score.
  */
 function minimax(board, depth, alpha, beta, maximizingPlayer) {
-    const validLocations = prioritizeColumns(board, maximizingPlayer ? AI : PLAYER);
+    const validLocations = getValidLocations(board);
     const isTerminal = isTerminalNode(board);
 
     if (depth === 0 || isTerminal) {
@@ -273,11 +273,9 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
         }
     }
 
-    let value;
-    let bestCol = validLocations[0];
-
     if (maximizingPlayer) {
-        value = -Infinity;
+        let value = -Infinity;
+        let bestCols = [];
         for (let col of validLocations) {
             const row = getNextOpenRow(board, col);
             if (row !== null) {
@@ -286,7 +284,9 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
                 const newScore = minimax(bCopy, depth - 1, alpha, beta, false)[1];
                 if (newScore > value) {
                     value = newScore;
-                    bestCol = col;
+                    bestCols = [col];
+                } else if (newScore === value) {
+                    bestCols.push(col);
                 }
                 alpha = Math.max(alpha, value);
                 if (alpha >= beta) {
@@ -294,8 +294,11 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
                 }
             }
         }
+        const bestCol = bestCols[Math.floor(Math.random() * bestCols.length)];
+        return [bestCol, value];
     } else {
-        value = Infinity;
+        let value = Infinity;
+        let bestCols = [];
         for (let col of validLocations) {
             const row = getNextOpenRow(board, col);
             if (row !== null) {
@@ -304,7 +307,9 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
                 const newScore = minimax(bCopy, depth - 1, alpha, beta, true)[1];
                 if (newScore < value) {
                     value = newScore;
-                    bestCol = col;
+                    bestCols = [col];
+                } else if (newScore === value) {
+                    bestCols.push(col);
                 }
                 beta = Math.min(beta, value);
                 if (alpha >= beta) {
@@ -312,8 +317,9 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
                 }
             }
         }
+        const bestCol = bestCols[Math.floor(Math.random() * bestCols.length)];
+        return [bestCol, value];
     }
-    return [bestCol, value];
 }
 
 export { minimax, isValidLocation, getNextOpenRow, dropPiece, winningMove, isTerminalNode, getValidLocations };
