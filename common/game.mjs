@@ -36,12 +36,27 @@ export class GameBoard {
     columnFull(col) {
         return this.board[numHigh - 1][col] !== ' ';
     }
+
+    /**
+     * Gets all the available column indices where a move can be made.
+     *
+     * @param {GameBoard} board - The current state of the Connect Four game board.
+     * @returns {Array<number>} - An array of available column indices.
+     */
+    availableColumns() {
+        const validLocations = [];
+        for (let col = 0; col < numWide; col++) {
+            if (!this.columnFull(col)) {
+                validLocations.push(col);
+            }
+        }
+        return validLocations;
+    }
     
     /**
      * Place a piece in the board
      * @param {integer} col column to place a piece
      * @param {character} player 'X','O', or ' '
-     * @returns {boolean} if column is full
      */
     place(col, player) {
         for (let row = 0; row < numHigh; row++) {
