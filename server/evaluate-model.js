@@ -66,6 +66,7 @@ difficulties.forEach(difficulty => {
     });
 });
 
+// TODO: figure out how to evaluate without timing out
 // wait for games to complete and then output the results
 Promise.all(gameStatusPromises).then(gameStatuses => {
     const outputTable = [];
