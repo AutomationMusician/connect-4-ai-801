@@ -1,5 +1,42 @@
 import { GameBoard, emptyBoardXOFormat, filpXO }  from 'common/game';
 
+const difficulties = ['easy', 'hard', 'pro'];
+// const difficulties = ['easy'];
+const players = ['X', 'O'];
+const numGamesPerScenario = 5;
+const XOT2WinTieLoss = {
+    'X': 'win',
+    'O': 'loss',
+    'T': 'tie'
+}
+async function evaluateModel() {
+    const outputTable = [];
+    for (let difficulty of difficulties) {
+        for (let startingPlayer of players) {
+            const startingPlayerPlainText = startingPlayer === 'X' ? "this model" : "opposing model";
+            const row = {
+                difficulty,
+                startingPlayer: startingPlayerPlainText,
+                win: 0,
+                loss: 0,
+                tie: 0
+            }
+            for (let i=0; i<numGamesPerScenario; i++) {
+                const gameStatus = await playGame(startingPlayer,difficulty);
+                const result = XOT2WinTieLoss[gameStatus];
+                console.log({
+                    difficulty,
+                    startingPlayer: startingPlayerPlainText,
+                    result
+                });
+                row[result]++;
+            }
+            outputTable.push(row);
+        }
+    }
+    console.table(outputTable);
+}
+
 async function playGame(startingPlayer, difficulty) {
     const gameBoard = new GameBoard(emptyBoardXOFormat); // create blank board
     let gameStatus = 'U';
@@ -50,44 +87,4 @@ async function getOtherModelMove(xoformat, difficulty) {
     return Number(responseText);
 }
 
-
-const difficulties = ['easy', 'hard', 'pro'];
-// const difficulties = ['easy', 'hard'];
-const players = ['X', 'O'];
-const numGamesPerScenario = 1;
-
-// asynchronously start all games
-const gameStatusPromises = [];
-difficulties.forEach(difficulty => {
-    players.forEach(startingPlayer => {
-        for (let i=0; i<numGamesPerScenario; i++) {
-            gameStatusPromises.push(playGame(startingPlayer,difficulty));
-        }
-    });
-});
-
-// TODO: figure out how to evaluate without timing out
-// wait for games to complete and then output the results
-Promise.all(gameStatusPromises).then(gameStatuses => {
-    const outputTable = [];
-    let index = 0;
-    difficulties.forEach(difficulty => {
-        players.forEach(startingPlayer => {
-
-            const row = {
-                difficulty,
-                startingPlayer,
-                'X': 0,
-                'O': 0,
-                'T': 0
-            };
-            for (let i=0; i<numGamesPerScenario; i++) {
-                const result = gameStatuses[index];
-                row[result]++;
-                index++;
-            }
-            outputTable.push(row);
-        });
-    });
-    console.table(outputTable);
-});
+evaluateModel();
