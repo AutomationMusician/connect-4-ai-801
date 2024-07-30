@@ -44,3 +44,19 @@ For example, the following board can be represented as `O.XO.OXXO.OXX.XO..O.` in
 | &nbsp; | &nbsp; |   X    |   X    |   X    | &nbsp; | &nbsp; |
 | &nbsp; |   O    |   X    |   X    |   O    | &nbsp; | &nbsp; |
 |   O    |   X    |   O    |   O    |   X    | &nbsp; |   O    |
+
+
+## Current Model Evaluation
+
+```
+┌─────────┬────────────┬──────────────────┬─────┬──────┬─────┐
+│ (index) │ difficulty │ startingPlayer   │ win │ loss │ tie │
+├─────────┼────────────┼──────────────────┼─────┼──────┼─────┤
+│ 0       │ 'easy'     │ 'this model'     │ 5   │ 0    │ 0   │
+│ 1       │ 'easy'     │ 'opposing model' │ 5   │ 0    │ 0   │
+│ 2       │ 'hard'     │ 'this model'     │ 5   │ 0    │ 0   │
+│ 3       │ 'hard'     │ 'opposing model' │ 5   │ 0    │ 0   │
+│ 4       │ 'pro'      │ 'this model'     │ 1   │ 4    │ 0   │
+│ 5       │ 'pro'      │ 'opposing model' │ 2   │ 0    │ 3   │
+└─────────┴────────────┴──────────────────┴─────┴──────┴─────┘
+```
