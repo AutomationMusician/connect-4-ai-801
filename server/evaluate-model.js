@@ -15,11 +15,16 @@ async function playGame(startingPlayer, difficulty) {
         }
         else {
             move = await getOtherModelMove(gameBoard.toXOFormat(), difficulty);
+            if (gameBoard.nextAvailableRow(move) === -1) {
+                const availableCols = gameBoard.availableColumns()
+                const newMove = availableCols[Math.floor(Math.random() * availableCols.length)];
+                console.log(`Opponent illegally played column ${move} for the game board '${gameBoard.toXOFormat()}'. Randomly playing column ${newMove} instead. Game info: starting player: ${startingPlayer}; difficulty: ${difficulty}`);
+                move = newMove;
+            }
             nextPlayer = 'X';
         }
         gameBoard.place(move, currentPlayer);
         gameStatus = gameBoard.status();
-        // console.log(`${currentPlayer} played in column ${move}. Game board is now: ${gameBoard.toXOFormat()}`);
         currentPlayer = nextPlayer;
     }
     return gameStatus;
@@ -46,10 +51,10 @@ async function getOtherModelMove(xoformat, difficulty) {
 }
 
 
-// const difficulties = ['easy', 'hard', 'pro'];
-const difficulties = ['easy', 'hard'];
+const difficulties = ['easy', 'hard', 'pro'];
+// const difficulties = ['easy', 'hard'];
 const players = ['X', 'O'];
-const numGamesPerScenario = 5;
+const numGamesPerScenario = 1;
 
 // asynchronously start all games
 const gameStatusPromises = [];

@@ -5,7 +5,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 
 import { GameBoard } from '../common/game.mjs';
-import { minimax } from './minimax.js';
+import { minimax, heuristic } from './minimax.js';
 // Define __dirname using ES module syntax
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -33,6 +33,7 @@ app.use('/common', express.static(path.join(__dirname, '../common')));
 
 app.get('/api/next-move/:xoformat', (req, res) => {
     const gameBoard = new GameBoard(req.params.xoformat);
+    console.log(`${req.params.xoformat}; heuristic: ${heuristic(gameBoard, 'X')}`);
     const bestCol = minimax(gameBoard); 
     console.log(`Received game state ${req.params.xoformat}. The AI chooses to move in column index ${bestCol}`);
     res.send(String(bestCol)); // Send column as a response. Use setTimeout to simulate it taking a full second.

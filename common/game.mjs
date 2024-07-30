@@ -1,5 +1,6 @@
 export const numWide = 7;
 export const numHigh = 6;
+export const lineSize = 4;
 export const emptyBoardXOFormat = Array(numHigh).fill('.').join('');
 
 /**
@@ -59,12 +60,24 @@ export class GameBoard {
      * @param {character} player 'X','O', or ' '
      */
     place(col, player) {
+        const row = this.nextAvailableRow(col);
+        if (row === -1)
+            throw Error(`Column ${col} is full. There is no available row to place the piece in. Current board state is ${this.toXOFormat()}`);
+        this.board[row][col] = player;
+    }
+
+    /**
+     * Determine the next available row in a column
+     * @param {integer} col column to search for the next best row
+     * @returns {integer} next available row
+     */
+    nextAvailableRow(col) {
         for (let row = 0; row < numHigh; row++) {
             if (this.board[row][col] === ' ') {
-                this.board[row][col] = player;
-                break;
+                return row;
             }
         }
+        return -1;
     }
     
     /**

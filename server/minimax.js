@@ -1,6 +1,6 @@
-import { GameBoard } from '../common/game.mjs';
+import { GameBoard, numHigh, numWide, lineSize } from '../common/game.mjs';
 
-const MAX_DEPTH = 7;
+const MAX_DEPTH = 6;
 
 /**
  * Implements the minimax algorithm with alpha-beta pruning to determine the best move.
@@ -59,8 +59,9 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
 
     // check if we've reached the maximum depth
     if (depth === MAX_DEPTH) {
-        // TODO: add evaluation heuristic
-        return 0;
+        const nextPlayer = player === 'X' ? 'O' : 'X';
+        const score = heuristic(gameBoard, nextPlayer);
+        return score;
     }
 
     const availableCols = gameBoard.availableColumns();
@@ -70,7 +71,6 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
         for (let col of availableCols) {
             gameBoard.place(col, 'X'); // update board
             const newScore = minimaxRecursive(gameBoard, depth + 1, alpha, beta, 'O');
-            // console.log(`${gameBoard.toXOFormat()} - score: ${newScore}`);
             gameBoard.remove(col); // undo update
             if (newScore > value) {
                 value = newScore;
@@ -88,7 +88,6 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
         for (let col of availableCols) {
             gameBoard.place(col, 'O'); // update board
             const newScore = minimaxRecursive(gameBoard, depth + 1, alpha, beta, 'X');
-            // console.log(`${gameBoard.toXOFormat()} - score: ${newScore}`);
             gameBoard.remove(col); // undo update
             if (newScore < value) {
                 value = newScore;
@@ -102,4 +101,55 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
         }
         return value;
     }
+}
+
+/**
+ * Evaluate the GameBoard with a heuristic
+ * @param {GameBoard} gameBoard 
+ * @param {character} nextPlayer 
+ * @returns {number} score of GameBoard based on the heuristic
+ */
+export function heuristic(gameBoard, nextPlayer) {
+    const totalHits = {
+        'X': 0,
+        'O': 0,
+        ' ': 0
+    };
+    for (let rowIndex=0; rowIndex<gameBoard.board.length; rowIndex++) {
+        const row = gameBoard.board[rowIndex];
+        for (let colIndex=0; colIndex<row.length; colIndex++) {
+            const player = row[colIndex];
+            totalHits[player] += numHits(rowIndex, colIndex);
+        }
+    }
+    let nextMoveMaxNumHits = 0;
+    for (let col=0; col<numWide; col++) {
+        const row = gameBoard.nextAvailableRow(col);
+        if (row === -1)
+            continue;
+        const hits = numHits(row, col);
+        if (hits > nextMoveMaxNumHits) {
+            nextMoveMaxNumHits = hits;
+        }
+    }
+    totalHits[nextPlayer] += nextMoveMaxNumHits;
+    return (totalHits['X'] - totalHits['O'])/(totalHits['X'] + totalHits['O'])
+}
+
+/**
+ * Calculate the number of lines that a cell at row,col can be in
+ * @param {integer} row 
+ * @param {integer} col 
+ * @returns {integer} the number of lines that the cell at row,col can be in
+ */
+function numHits(row, col) {
+    const distanceFromTopBottom = row < numHigh - row - 1 ? row : numHigh - row - 1;
+    const distanceFromLeftRight = col < numWide - col - 1 ? col : numWide - col - 1;
+    const numHorizontalLines = distanceFromLeftRight+1
+    const numVerticalLines = distanceFromTopBottom+1
+    const numDiagonalUpRight = distanceFromTopBottom < distanceFromLeftRight ? distanceFromTopBottom + 1 : distanceFromLeftRight + 1;
+    const numDiagonalUpLeftLinesNoConstraints = distanceFromTopBottom + distanceFromLeftRight - lineSize + 2;
+    const numDiagonalUpLeftLinesMaxSize = numDiagonalUpLeftLinesNoConstraints > lineSize ? lineSize : numDiagonalUpLeftLinesNoConstraints;
+    const numDiagonalUpLeftLinesMinZero = numDiagonalUpLeftLinesMaxSize < 0 ? 0 : numDiagonalUpLeftLinesMaxSize;
+    return numHorizontalLines + numVerticalLines + numDiagonalUpRight + numDiagonalUpLeftLinesMinZero;
 }
