@@ -49,14 +49,26 @@ For example, the following board can be represented as `O.XO.OXXO.OXX.XO..O.` in
 ## Current Model Evaluation
 
 ```
-┌─────────┬────────────┬──────────────────┬─────┬──────┬─────┐
-│ (index) │ difficulty │ startingPlayer   │ win │ loss │ tie │
-├─────────┼────────────┼──────────────────┼─────┼──────┼─────┤
-│ 0       │ 'easy'     │ 'this model'     │ 5   │ 0    │ 0   │
-│ 1       │ 'easy'     │ 'opposing model' │ 5   │ 0    │ 0   │
-│ 2       │ 'hard'     │ 'this model'     │ 5   │ 0    │ 0   │
-│ 3       │ 'hard'     │ 'opposing model' │ 5   │ 0    │ 0   │
-│ 4       │ 'pro'      │ 'this model'     │ 1   │ 4    │ 0   │
-│ 5       │ 'pro'      │ 'opposing model' │ 2   │ 0    │ 3   │
-└─────────┴────────────┴──────────────────┴─────┴──────┴─────┘
+┌─────────┬──────────────────────────┬────────────┬──────────────────┬─────┬──────┬─────┐
+│ (index) │ model                    │ difficulty │ startingPlayer   │ win │ loss │ tie │
+├─────────┼──────────────────────────┼────────────┼──────────────────┼─────┼──────┼─────┤
+│ 0       │ 'random'                 │ 'easy'     │ 'this model'     │ 4   │ 6    │ 0   │
+│ 1       │ 'random'                 │ 'easy'     │ 'opposing model' │ 0   │ 10   │ 0   │
+│ 2       │ 'random'                 │ 'hard'     │ 'this model'     │ 0   │ 10   │ 0   │
+│ 3       │ 'random'                 │ 'hard'     │ 'opposing model' │ 0   │ 10   │ 0   │
+│ 4       │ 'random'                 │ 'pro'      │ 'this model'     │ 0   │ 10   │ 0   │
+│ 5       │ 'random'                 │ 'pro'      │ 'opposing model' │ 0   │ 10   │ 0   │
+│ 6       │ 'minimax'                │ 'easy'     │ 'this model'     │ 10  │ 0    │ 0   │
+│ 7       │ 'minimax'                │ 'easy'     │ 'opposing model' │ 9   │ 1    │ 0   │
+│ 8       │ 'minimax'                │ 'hard'     │ 'this model'     │ 5   │ 4    │ 1   │
+│ 9       │ 'minimax'                │ 'hard'     │ 'opposing model' │ 8   │ 2    │ 0   │
+│ 10      │ 'minimax'                │ 'pro'      │ 'this model'     │ 0   │ 10   │ 0   │
+│ 11      │ 'minimax'                │ 'pro'      │ 'opposing model' │ 1   │ 7    │ 2   │
+│ 12      │ 'minimax-with-heuristic' │ 'easy'     │ 'this model'     │ 10  │ 0    │ 0   │
+│ 13      │ 'minimax-with-heuristic' │ 'easy'     │ 'opposing model' │ 10  │ 0    │ 0   │
+│ 14      │ 'minimax-with-heuristic' │ 'hard'     │ 'this model'     │ 10  │ 0    │ 0   │
+│ 15      │ 'minimax-with-heuristic' │ 'hard'     │ 'opposing model' │ 10  │ 0    │ 0   │
+│ 16      │ 'minimax-with-heuristic' │ 'pro'      │ 'this model'     │ 0   │ 10   │ 0   │
+│ 17      │ 'minimax-with-heuristic' │ 'pro'      │ 'opposing model' │ 9   │ 1    │ 0   │
+└─────────┴──────────────────────────┴────────────┴──────────────────┴─────┴──────┴─────┘
 ```

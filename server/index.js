@@ -47,6 +47,7 @@ app.get('/api/next-move/:model/:xoformat', (req, res) => {
         case "random":
             const availableCols = gameBoard.availableColumns()
             bestCol = availableCols[Math.floor(Math.random() * availableCols.length)];
+            break;
         case "minimax":
             // evaluate minimax with no heuristic (heuristic function = 0)
             bestCol = minimax(gameBoard, (gameBoard, nextPlayer) => 0);
