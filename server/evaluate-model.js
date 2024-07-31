@@ -1,9 +1,10 @@
 import { GameBoard, emptyBoardXOFormat, filpXO }  from 'common/game';
 
-const difficulties = ['easy', 'hard', 'pro'];
-// const difficulties = ['easy'];
+const models = ['random', 'minimax', 'minimax-with-heuristic'];
+// const difficulties = ['easy', 'hard', 'pro'];
+const difficulties = ['easy'];
 const players = ['X', 'O'];
-const numGamesPerScenario = 5;
+const numGamesPerScenario = 1;
 const XOT2WinTieLoss = {
     'X': 'win',
     'O': 'loss',
@@ -11,33 +12,38 @@ const XOT2WinTieLoss = {
 }
 async function evaluateModel() {
     const outputTable = [];
-    for (let difficulty of difficulties) {
-        for (let startingPlayer of players) {
-            const startingPlayerPlainText = startingPlayer === 'X' ? "this model" : "opposing model";
-            const row = {
-                difficulty,
-                startingPlayer: startingPlayerPlainText,
-                win: 0,
-                loss: 0,
-                tie: 0
-            }
-            for (let i=0; i<numGamesPerScenario; i++) {
-                const gameStatus = await playGame(startingPlayer,difficulty);
-                const result = XOT2WinTieLoss[gameStatus];
-                console.log({
+    for (let model of models) {
+        for (let difficulty of difficulties) {
+            for (let startingPlayer of players) {
+                const startingPlayerPlainText = startingPlayer === 'X' ? "this model" : "opposing model";
+                const row = {
+                    model,
                     difficulty,
                     startingPlayer: startingPlayerPlainText,
-                    result
-                });
-                row[result]++;
+                    win: 0,
+                    loss: 0,
+                    tie: 0
+                }
+                for (let i=0; i<numGamesPerScenario; i++) {
+                    const gameStatus = await playGame(startingPlayer, model, difficulty);
+                    const result = XOT2WinTieLoss[gameStatus];
+                    console.log({
+                        model,
+                        difficulty,
+                        startingPlayer: startingPlayerPlainText,
+                        result
+                    });
+                    row[result]++;
+                }
+                outputTable.push(row);
             }
-            outputTable.push(row);
         }
+
     }
     console.table(outputTable);
 }
 
-async function playGame(startingPlayer, difficulty) {
+async function playGame(startingPlayer, model, difficulty) {
     const gameBoard = new GameBoard(emptyBoardXOFormat); // create blank board
     let gameStatus = 'U';
     let currentPlayer = startingPlayer;
@@ -47,7 +53,7 @@ async function playGame(startingPlayer, difficulty) {
         let move;
         let nextPlayer;
         if (currentPlayer === 'X') {
-            move = await getThisModelMove(gameBoard.toXOFormat());
+            move = await getThisModelMove(gameBoard.toXOFormat(), model);
             nextPlayer = 'O';
         }
         else {
@@ -68,8 +74,8 @@ async function playGame(startingPlayer, difficulty) {
 }
 
 
-async function getThisModelMove(xoformat) {
-    const response = await fetch(`http://localhost:3000/api/next-move/${xoformat}`);
+async function getThisModelMove(xoformat, model) {
+    const response = await fetch(`http://localhost:3000/api/next-move/${model}/${xoformat}`);
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
     }

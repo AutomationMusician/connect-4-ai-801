@@ -33,7 +33,7 @@ app.use('/client', express.static(path.join(__dirname, '../client')));
 app.use('/common', express.static(path.join(__dirname, '../common')));
 
 app.get('/api/next-move/:model/:xoformat', (req, res) => {
-    const model = req.params.xoformat;
+    const model = req.params.model;
     const xoformat = req.params.xoformat;
     const gameBoard = new GameBoard(xoformat);
     if (gameBoard.status() !== 'U') {
@@ -42,7 +42,6 @@ app.get('/api/next-move/:model/:xoformat', (req, res) => {
         res.status(400).send(message);
         return;
     }
-    console.log(`${xoformat}; heuristic: ${heuristic(gameBoard, 'X')}`);
     let bestCol;
     switch (model) {
         case "random":
@@ -62,7 +61,7 @@ app.get('/api/next-move/:model/:xoformat', (req, res) => {
             res.status(400).send(message);
             return;
     }
-    console.log(`AI chooses to move in column index ${bestCol} for the received game state: ${xoformat}. `);
+    console.log(`AI chooses to move in column index ${bestCol} using the model '${model}' for the received game state: ${xoformat}. `);
     res.send(String(bestCol)); // send column as a response
 });
 

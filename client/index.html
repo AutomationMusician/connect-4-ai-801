@@ -3,14 +3,19 @@
 <head>
     <title>Connect 4</title>
     <style>
-        #toolbar {
+        .toolbar {
             text-align: center;
             margin-left: auto;
             margin-right: auto;
+            padding-bottom: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        button, label, select {
+            font-size: 14px;
         }
         button {
             width: 150px;
-            margin: 10px 20px;
+            margin: 0px 20px;
         }
         table {
             margin-left: auto;
@@ -31,9 +36,19 @@
     <table>
         <thead>
             <tr>
-                <td id="toolbar">
+                <td class="toolbar">
                     <button id="changeFirstPlayer">Play Red First</button>
                     <button id="clearBoard">Reset Game Board</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="toolbar">
+                    <label for="model">Select Model: </label>
+                    <select id="model">
+                        <option value="minimax-with-heuristic" selected="selected">Minimax With Heuristic</option>
+                        <option value="minimax" >Minimax</option>
+                        <option value="random">Random</option>
+                    </select>
                 </td>
             </tr>
         </thead>

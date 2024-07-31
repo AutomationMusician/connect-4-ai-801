@@ -29,8 +29,10 @@ function boxId(col, row) {
  * @returns {void}
  */
 function setupTable() {
-    const toolbarElem = document.getElementById("toolbar");
-    toolbarElem.colSpan = numWide;
+    const toolbarElems = document.getElementsByClassName("toolbar");
+    for (let toolbarElem of toolbarElems) {
+        toolbarElem.colSpan = numWide;
+    }
 
     const tbody = document.getElementById("tbody");
     const rows = [];
@@ -109,6 +111,10 @@ function getGameBoard() {
         }
     }
     return gameBoard;
+}
+
+function getModel() {
+    return document.getElementById("model").value;
 }
 
 /**
@@ -199,7 +205,8 @@ async function click(col) {
  */
 async function getAiMove() {
     const gameBoard = getGameBoard();
-    const response = await fetch(`/api/next-move/${gameBoard.toXOFormat()}`);
+    const model = getModel();
+    const response = await fetch(`/api/next-move/${model}/${gameBoard.toXOFormat()}`);
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
     }
