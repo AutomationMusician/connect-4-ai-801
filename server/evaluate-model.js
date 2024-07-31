@@ -1,15 +1,16 @@
 import { GameBoard, emptyBoardXOFormat, filpXO }  from 'common/game';
 
+const numGamesPerScenario = 10;
 const models = ['random', 'minimax', 'minimax-with-heuristic'];
-// const difficulties = ['easy', 'hard', 'pro'];
-const difficulties = ['easy'];
+const difficulties = ['easy', 'hard', 'pro'];
+
 const players = ['X', 'O'];
-const numGamesPerScenario = 1;
 const XOT2WinTieLoss = {
     'X': 'win',
     'O': 'loss',
     'T': 'tie'
 }
+
 async function evaluateModel() {
     const outputTable = [];
     for (let model of models) {
