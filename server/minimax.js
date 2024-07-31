@@ -1,47 +1,22 @@
-import { GameBoard, numHigh, numWide, lineSize } from 'common/game';
+import { GameBoard } from 'common/game';
 
 const MAX_DEPTH = 7;
-
-// evaluate the numHits for every spot in the board
-const numHitsArray = [...Array(numHigh)].map(e => Array(numWide).fill(0));
-for (let row=0; row<numHigh; row++) {
-    for (let col=0; col<numWide; col++) {
-        numHitsArray[row][col] = numHits(row,col);
-    }
-}
-
-/**
- * Calculate the number of lines that a cell at row,col can be in
- * @param {integer} row 
- * @param {integer} col 
- * @returns {integer} the number of lines that the cell at row,col can be in
- */
-function numHits(row, col) {
-    const distanceFromTopBottom = row < numHigh - row - 1 ? row : numHigh - row - 1;
-    const distanceFromLeftRight = col < numWide - col - 1 ? col : numWide - col - 1;
-    const numHorizontalLines = distanceFromLeftRight+1
-    const numVerticalLines = distanceFromTopBottom+1
-    const numDiagonalUpRight = distanceFromTopBottom < distanceFromLeftRight ? distanceFromTopBottom + 1 : distanceFromLeftRight + 1;
-    const numDiagonalUpLeftLinesNoConstraints = distanceFromTopBottom + distanceFromLeftRight - lineSize + 2;
-    const numDiagonalUpLeftLinesMaxSize = numDiagonalUpLeftLinesNoConstraints > lineSize ? lineSize : numDiagonalUpLeftLinesNoConstraints;
-    const numDiagonalUpLeftLinesMinZero = numDiagonalUpLeftLinesMaxSize < 0 ? 0 : numDiagonalUpLeftLinesMaxSize;
-    return numHorizontalLines + numVerticalLines + numDiagonalUpRight + numDiagonalUpLeftLinesMinZero;
-}
 
 /**
  * Implements the minimax algorithm with alpha-beta pruning to determine the best move.
  * See "Artificial Intelligence - A Modern Approach (3rd Edition)" page 170.
  *
  * @param {GameBoard} gameBoard - The current state of the Connect4 game board.
+ * @param {(gameBoard: GameBoard, nextPlayer: character) => number} heuristic heuristic function
  * @returns {integer} - The best column to play
  */
-export function minimax(gameBoard) {
+export function minimax(gameBoard, heuristic) {
     const availableColumns = gameBoard.availableColumns();
     let bestValue = -Infinity;
     let bestCols;
     availableColumns.forEach(col => {
         gameBoard.place(col, 'X'); // update board
-        const value = minimaxRecursive(gameBoard, 0, -Infinity, Infinity, 'O');
+        const value = minimaxRecursive(gameBoard, 0, -Infinity, Infinity, 'O', heuristic);
         if (value > bestValue) {
             bestValue = value;
             bestCols = [col];
@@ -63,9 +38,10 @@ export function minimax(gameBoard) {
  * @param {number} alpha - The alpha value for alpha-beta pruning.
  * @param {number} beta - The beta value for alpha-beta pruning.
  * @param {character} player - character representation of the player.
+ * @param {(gameBoard: GameBoard, nextPlayer: character) => number} heuristic heuristic function
  * @returns {number} - score
  */
-function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
+function minimaxRecursive(gameBoard, depth, alpha, beta, player, heuristic) {
     const status = gameBoard.status();
 
     // check if there is a winner or it is a tie
@@ -86,8 +62,7 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
     // check if we've reached the maximum depth
     if (depth === MAX_DEPTH) {
         const nextPlayer = player === 'X' ? 'O' : 'X';
-        const score = heuristic(gameBoard, nextPlayer);
-        return score;
+        return heuristic(gameBoard, nextPlayer);
     }
 
     const availableCols = gameBoard.availableColumns();
@@ -127,37 +102,4 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
         }
         return value;
     }
-}
-
-/**
- * Evaluate the GameBoard with a heuristic
- * @param {GameBoard} gameBoard 
- * @param {character} nextPlayer 
- * @returns {number} score of GameBoard based on the heuristic
- */
-export function heuristic(gameBoard, nextPlayer) {
-    const totalHits = {
-        'X': 0,
-        'O': 0,
-        ' ': 0
-    };
-    for (let rowIndex=0; rowIndex<gameBoard.board.length; rowIndex++) {
-        const row = gameBoard.board[rowIndex];
-        for (let colIndex=0; colIndex<row.length; colIndex++) {
-            const player = row[colIndex];
-            totalHits[player] += numHitsArray[rowIndex][colIndex];
-        }
-    }
-    let nextMoveMaxNumHits = 0;
-    for (let col=0; col<numWide; col++) {
-        const row = gameBoard.nextAvailableRow(col);
-        if (row === -1)
-            continue;
-        const hits = numHits(row, col);
-        if (hits > nextMoveMaxNumHits) {
-            nextMoveMaxNumHits = hits;
-        }
-    }
-    totalHits[nextPlayer] += nextMoveMaxNumHits;
-    return (totalHits['X'] - totalHits['O'])/(totalHits['X'] + totalHits['O'])
 }
