@@ -1,7 +1,7 @@
 import { GameBoard, emptyBoardXOFormat, filpXO }  from 'common/game';
 
 const numGamesPerScenario = 10;
-const models = ['random'] //, 'minimax', 'minimax-with-heuristic'];
+const models = ['random', 'minimax', 'minimax-with-heuristic'];
 const difficulties = ['easy', 'hard', 'pro'];
 
 const players = ['X', 'O'];
