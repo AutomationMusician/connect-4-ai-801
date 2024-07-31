@@ -1,4 +1,4 @@
-import { GameBoard } from '../common/game.mjs';
+import { GameBoard } from 'common/game';
 
 const MAX_DEPTH = 7;
 
@@ -7,15 +7,16 @@ const MAX_DEPTH = 7;
  * See "Artificial Intelligence - A Modern Approach (3rd Edition)" page 170.
  *
  * @param {GameBoard} gameBoard - The current state of the Connect4 game board.
+ * @param {(gameBoard: GameBoard, nextPlayer: character) => number} heuristicFunction heuristic function
  * @returns {integer} - The best column to play
  */
-export function minimax(gameBoard) {
+export function minimax(gameBoard, heuristicFunction) {
     const availableColumns = gameBoard.availableColumns();
     let bestValue = -Infinity;
     let bestCols;
     availableColumns.forEach(col => {
         gameBoard.place(col, 'X'); // update board
-        const value = minimaxRecursive(gameBoard, 0, -Infinity, Infinity, 'O');
+        const value = minimaxRecursive(gameBoard, 0, -Infinity, Infinity, 'O', heuristicFunction);
         if (value > bestValue) {
             bestValue = value;
             bestCols = [col];
@@ -37,9 +38,10 @@ export function minimax(gameBoard) {
  * @param {number} alpha - The alpha value for alpha-beta pruning.
  * @param {number} beta - The beta value for alpha-beta pruning.
  * @param {character} player - character representation of the player.
+ * @param {(gameBoard: GameBoard, nextPlayer: character) => number} heuristicFunction heuristic function
  * @returns {number} - score
  */
-function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
+function minimaxRecursive(gameBoard, depth, alpha, beta, player, heuristicFunction) {
     const status = gameBoard.status();
 
     // check if there is a winner or it is a tie
@@ -59,8 +61,8 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
 
     // check if we've reached the maximum depth
     if (depth === MAX_DEPTH) {
-        // TODO: add evaluation heuristic
-        return 0;
+        const nextPlayer = player === 'X' ? 'O' : 'X';
+        return heuristicFunction(gameBoard, nextPlayer);
     }
 
     const availableCols = gameBoard.availableColumns();
@@ -69,8 +71,7 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
         let value = -Infinity;
         for (let col of availableCols) {
             gameBoard.place(col, 'X'); // update board
-            const newScore = minimaxRecursive(gameBoard, depth + 1, alpha, beta, 'O');
-            // console.log(`${gameBoard.toXOFormat()} - score: ${newScore}`);
+            const newScore = minimaxRecursive(gameBoard, depth + 1, alpha, beta, 'O', heuristicFunction);
             gameBoard.remove(col); // undo update
             if (newScore > value) {
                 value = newScore;
@@ -87,8 +88,7 @@ function minimaxRecursive(gameBoard, depth, alpha, beta, player) {
         let value = Infinity;
         for (let col of availableCols) {
             gameBoard.place(col, 'O'); // update board
-            const newScore = minimaxRecursive(gameBoard, depth + 1, alpha, beta, 'X');
-            // console.log(`${gameBoard.toXOFormat()} - score: ${newScore}`);
+            const newScore = minimaxRecursive(gameBoard, depth + 1, alpha, beta, 'X', heuristicFunction);
             gameBoard.remove(col); // undo update
             if (newScore < value) {
                 value = newScore;

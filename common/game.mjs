@@ -1,5 +1,6 @@
 export const numWide = 7;
 export const numHigh = 6;
+export const lineSize = 4;
 export const emptyBoardXOFormat = Array(numHigh).fill('.').join('');
 
 /**
@@ -59,12 +60,24 @@ export class GameBoard {
      * @param {character} player 'X','O', or ' '
      */
     place(col, player) {
+        const row = this.nextAvailableRow(col);
+        if (row === -1)
+            throw Error(`Column ${col} is full. There is no available row to place the piece in. Current board state is ${this.toXOFormat()}`);
+        this.board[row][col] = player;
+    }
+
+    /**
+     * Determine the next available row in a column
+     * @param {integer} col column to search for the next best row
+     * @returns {integer} next available row
+     */
+    nextAvailableRow(col) {
         for (let row = 0; row < numHigh; row++) {
             if (this.board[row][col] === ' ') {
-                this.board[row][col] = player;
-                break;
+                return row;
             }
         }
+        return -1;
     }
     
     /**
@@ -80,52 +93,82 @@ export class GameBoard {
         }
     }
 
-    // TODO: test this more thoroughly. I've noted that lots of wins aren't counted as wins.
+    /**
+     * Loop over all of the lines in the board with a certain size
+     * @param {integer} size size of the lines to check
+     * @param {(line: character[]) => boolean} callback callback function which should return true to break out of the loop
+     * @returns {void}
+     */
+    loopOverLines(size, callback) {
+        // iterate over horizontal lines
+        for (let row = 0; row < numHigh; row++) {
+            for (let col = 0; col <= numWide - size; col++) {
+                const line = [];
+                for (let i=0; i<size; i++) {
+                    line.push(this.board[row][col + i]);
+                }
+                const breakOutOfLoop = callback(line);
+                if (breakOutOfLoop) return;
+            }
+        }
+    
+        // iterations over vertical lines
+        for (let row = 0; row <= numHigh - size; row++) {
+            for (let col = 0; col < numWide; col++) {
+                const line = [];
+                for (let i=0; i<size; i++) {
+                    line.push(this.board[row + i][col]);
+                }
+                const breakOutOfLoop = callback(line);
+                if (breakOutOfLoop) return;
+            }
+        }
+    
+        // iterate over diagonal (bottom left to top right) lines
+        for (let row = 0; row <= numHigh - size; row++) {
+            for (let col = 0; col < numWide - size; col++) {
+                const line = [];
+                for (let i=0; i<size; i++) {
+                    line.push(this.board[row + i][col + i]);
+                }
+                const breakOutOfLoop = callback(line);
+                if (breakOutOfLoop) return;
+            }
+        }
+    
+        // iterate over diagonal (top left to bottom right) lines
+        for (let row = size - 1; row < numHigh; row++) {
+            for (let col = 0; col <= numWide - size; col++) {
+                const line = [];
+                for (let i=0; i<size; i++) {
+                    line.push(this.board[row - i][col + i]);
+                }
+                const breakOutOfLoop = callback(line);
+                if (breakOutOfLoop) return;
+            }
+        }
+    }
+
     /**
      * Check the status of the game
      * @returns {character} 'X' for X win, 'O' for O win, 'T' for tie, and 'U' if the game is unfinished
      */
     status() {
-        function checkLine(a, b, c, d) {
-            // Check if all four pieces are the same and not empty
-            return (a !== ' ' && a === b && a === c && a === d);
-        }
+        let winner = ' ';
     
-        // Check for horizontal wins
-        for (let row = 0; row < numHigh; row++) {
-            for (let col = 0; col < numWide - 3; col++) {
-                if (checkLine(this.board[row][col], this.board[row][col + 1], this.board[row][col + 2], this.board[row][col + 3])) {
-                    return this.board[row][col];
+        this.loopOverLines(4, (line) => {
+            if (line[0] === ' ')
+                return false;
+            for (let i=1; i<line.length; i++) {
+                if (line[0] !== line[i]) {
+                    return false;
                 }
             }
-        }
-    
-        // Check for vertical wins
-        for (let row = 0; row < numHigh - 3; row++) {
-            for (let col = 0; col < numWide; col++) {
-                if (checkLine(this.board[row][col], this.board[row + 1][col], this.board[row + 2][col], this.board[row + 3][col])) {
-                    return this.board[row][col];
-                }
-            }
-        }
-    
-        // Check for diagonal (bottom left to top right) wins
-        for (let row = 0; row < numHigh - 3; row++) {
-            for (let col = 0; col < numWide - 3; col++) {
-                if (checkLine(this.board[row][col], this.board[row + 1][col + 1], this.board[row + 2][col + 2], this.board[row + 3][col + 3])) {
-                    return this.board[row][col];
-                }
-            }
-        }
-    
-        // Check for diagonal (top left to bottom right) wins
-        for (let row = 3; row < numHigh; row++) {
-            for (let col = 0; col < numWide - 3; col++) {
-                if (checkLine(this.board[row][col], this.board[row - 1][col + 1], this.board[row - 2][col + 2], this.board[row - 3][col + 3])) {
-                    return this.board[row][col];
-                }
-            }
-        }
+            winner = line[0];
+            return true;
+        });
+        if (winner !== ' ')
+            return winner;
     
         // Check if there are still available moves
         for (let col = 0; col < numWide; col++) {
