@@ -63,7 +63,7 @@ app.get('/api/next-move/:model/:xoformat', (req, res) => {
             return;
     }
     console.log(`AI chooses to move in column index ${bestCol} using the model '${model}' for the received game state: ${xoformat}. `);
-    res.send(String(bestCol)); // send column as a response
+    res.status(200).send(String(bestCol)); // send column as a response
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
