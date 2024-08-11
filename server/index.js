@@ -1,38 +1,26 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-
 import { GameBoard } from 'common/game';
 import { minimax } from './minimax.js';
 import { heuristic } from './heuristic.js';
+
+const port = process.env.PORT || 3000;
+const basePath = process.env.BASE_PATH || "";
+console.log(basePath);
+const app = express();
+
 // Define __dirname using ES module syntax
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const app = express();
-
-app.use(bodyParser.json());
-// CORS option setup
-const corsOptions = {
-    origin: '*', 
-    credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type,Authorization'
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
-
-const port = process.env.PORT || 3000;
-
 // Redirect root to '/client' route
-app.get('/', (req, res) => res.redirect('/client'));
+app.get(basePath, (req, res) => res.redirect(basePath + '/client'));
+app.get(basePath + '/', (req, res) => res.redirect(basePath + '/client'));
 
-app.use('/client', express.static(path.join(__dirname, '../client')));
-app.use('/common', express.static(path.join(__dirname, '../common')));
+app.use(basePath + '/client', express.static(path.join(__dirname, '../client')));
+app.use(basePath + '/common', express.static(path.join(__dirname, '../common')));
 
-app.get('/api/next-move/:model/:xoformat', (req, res) => {
+app.get(basePath + '/api/next-move/:model/:xoformat', (req, res) => {
     const model = req.params.model;
     const xoformat = req.params.xoformat;
     const gameBoard = new GameBoard(xoformat);
