@@ -206,7 +206,7 @@ async function click(col) {
 async function getAiMove() {
     const gameBoard = getGameBoard();
     const model = getModel();
-    const response = await fetch(`/api/next-move/${model}/${gameBoard.toXOFormat()}`);
+    const response = await fetch(`../api/next-move/${model}/${gameBoard.toXOFormat()}`);
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
     }

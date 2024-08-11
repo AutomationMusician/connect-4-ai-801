@@ -1,6 +1,6 @@
 {
   "name": "common",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Common Module for Connect 4 AI Agent for Penn State AI 801",
   "main": "game.mjs",
   "scripts": {

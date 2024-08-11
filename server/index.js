@@ -4,10 +4,11 @@ import { fileURLToPath } from 'url';
 import { GameBoard } from 'common/game';
 import { minimax } from './minimax.js';
 import { heuristic } from './heuristic.js';
+import 'dotenv/config';
 
 const port = Number(process.env.PORT || "3000");
 const basePath = process.env.BASE_PATH || "";
-console.log(basePath);
+console.log(`BASE_PATH='${basePath}'`);
 const app = express();
 
 // Define __dirname using ES module syntax
