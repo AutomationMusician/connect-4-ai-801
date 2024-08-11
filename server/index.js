@@ -5,7 +5,7 @@ import { GameBoard } from 'common/game';
 import { minimax } from './minimax.js';
 import { heuristic } from './heuristic.js';
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT || "3000");
 const basePath = process.env.BASE_PATH || "";
 console.log(basePath);
 const app = express();
