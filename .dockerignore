@@ -2,6 +2,7 @@
 .gitignore
 .vscode
 .dockerignore
+server/.env
 scripts/
 Dockerfile
 
