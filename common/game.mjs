@@ -126,7 +126,7 @@ export class GameBoard {
     
         // iterate over diagonal (bottom left to top right) lines
         for (let row = 0; row <= numHigh - size; row++) {
-            for (let col = 0; col < numWide - size; col++) {
+            for (let col = 0; col <= numWide - size; col++) {
                 const line = [];
                 for (let i=0; i<size; i++) {
                     line.push(this.board[row + i][col + i]);
