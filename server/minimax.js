@@ -1,6 +1,8 @@
 import { GameBoard } from 'common/game';
+import 'dotenv/config';
 
-const MAX_DEPTH = 7;
+const MAX_DEPTH = Number(process.env.MAX_DEPTH || "7");
+console.log("Maximum minimax depth = " + MAX_DEPTH);
 
 /**
  * Implements the minimax algorithm with alpha-beta pruning to determine the best move.

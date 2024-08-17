@@ -1,0 +1,9 @@
+.git
+.gitignore
+.vscode
+.dockerignore
+server/.env
+scripts/
+Dockerfile
+
+node_modules/

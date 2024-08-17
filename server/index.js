@@ -1,38 +1,27 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-
 import { GameBoard } from 'common/game';
 import { minimax } from './minimax.js';
 import { heuristic } from './heuristic.js';
+import 'dotenv/config';
+
+const port = Number(process.env.PORT || "3000");
+const basePath = process.env.BASE_PATH || "";
+console.log(`BASE_PATH='${basePath}'`);
+const app = express();
+
 // Define __dirname using ES module syntax
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const app = express();
-
-app.use(bodyParser.json());
-// CORS option setup
-const corsOptions = {
-    origin: '*', 
-    credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type,Authorization'
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
-
-const port = process.env.PORT || 3000;
-
 // Redirect root to '/client' route
-app.get('/', (req, res) => res.redirect('/client'));
+app.get(basePath, (req, res) => res.redirect(basePath + '/client'));
+app.get(basePath + '/', (req, res) => res.redirect(basePath + '/client'));
 
-app.use('/client', express.static(path.join(__dirname, '../client')));
-app.use('/common', express.static(path.join(__dirname, '../common')));
+app.use(basePath + '/client', express.static(path.join(__dirname, '../client')));
+app.use(basePath + '/common', express.static(path.join(__dirname, '../common')));
 
-app.get('/api/next-move/:model/:xoformat', (req, res) => {
+app.get(basePath + '/api/next-move/:model/:xoformat', (req, res) => {
     const model = req.params.model;
     const xoformat = req.params.xoformat;
     const gameBoard = new GameBoard(xoformat);
@@ -63,7 +52,7 @@ app.get('/api/next-move/:model/:xoformat', (req, res) => {
             return;
     }
     console.log(`AI chooses to move in column index ${bestCol} using the model '${model}' for the received game state: ${xoformat}. `);
-    res.send(String(bestCol)); // send column as a response
+    res.status(200).send(String(bestCol)); // send column as a response
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
