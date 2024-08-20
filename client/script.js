@@ -147,7 +147,7 @@ function showStatus(status) {
  * Update the HTML to show that a new piece was played and update the status if the game is finished.
  * @param {integer} col
  * @param {string} playerColor color of player: "blue" or "red"
- * @returns {void}
+ * @returns {boolean} piece was successfully placed
  */
 function place(col, playerColor) {
     let piecePlaced = false;
@@ -161,11 +161,12 @@ function place(col, playerColor) {
     }
     if (!piecePlaced) {
         console.error(`${playerColor} piece could not be placed because column index ${col} is full`);
-        return;
+        return false;
     }
     const gameBoard = getGameBoard();
     const currentStatus = gameBoard.status();
     showStatus(currentStatus);
+    return true;
 }
 
 /**
@@ -184,7 +185,11 @@ async function click(col) {
     }
 
     // place blue piece
-    place(col, "blue");
+    const blueSuccess = place(col, "blue");
+    if (!blueSuccess) {
+        moveInProgress = false;
+        return;
+    }
 
     // place red piece
     if (finished) {
